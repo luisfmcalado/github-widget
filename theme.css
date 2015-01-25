@@ -1,0 +1,66 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+#gitwidget {
+    font-family: 'Open Sans', sans-serif;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-width: 350px;
+    max-height: 300px;
+    border: 1px solid #999999;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.gitrepo {
+    float: left;
+    width: 100%;
+    border-bottom: 1px solid #999999;
+    color: #000000;
+    padding: 10px;
+}
+
+.reponame {
+    width: 65%;
+    float: left;
+    padding-left: 5px;
+}
+
+.repolink {
+    font-weight: 500;
+}
+
+.repoinfo {
+    width: 30%;
+    float: right;
+    text-transform: uppercase;
+    font-size: 75%;
+}
+
+.stargazerstitle {
+    width: 50%;
+    float: left;
+}
+
+.forkstitle {
+    width: 50%;
+    float: left;
+}
+
+.createdby {
+    font-size: 75%;
+}
+
+.description {
+    font-size: 75%;
+}
+
+.repolink {
+    text-decoration: none;
+    color: #000000;
+    font-weight: bold;
+}
+
+.repolink:hover {
+    text-decoration: underline;
+}
