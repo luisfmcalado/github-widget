@@ -10,6 +10,7 @@ window.gitwidget = (function () {
             var frame = document.createElement("iframe");
             frame.src = parent.theme;
             frame.id = "iframe-" + i;
+            frame.style.visibility = 'hidden';
             elem.appendChild(frame);
 
             frame.onload = function () {
