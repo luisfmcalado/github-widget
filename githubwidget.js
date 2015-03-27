@@ -3,11 +3,26 @@ window.gitwidget = (function () {
 
     var api_url = "https://api.github.com/";
     var github_url = "https://github.com/";
-
-    function renderWidget(parent, result) {
+		
+	function fins(elem){
+		elem.style.visibility = 'visible';
+	}
+		
+    function renderWidget(parent, result) {    
         var elem = document.getElementById(parent.selector);
-        for (var i = 0; i < result.length; i++) {
-            var frame = document.createElement("iframe");
+        setTimeout(function(){ 
+        	srepo(0, result.length, parent, elem, result); 
+        }, 50);
+    }
+
+	function srepo(i, length, parent, elem, result){
+		
+		if(i >= length) {
+			fins(elem);
+			return;
+		}
+		
+		var frame = document.createElement("iframe");
             frame.src = parent.theme;
             frame.id = "iframe-" + i;
             frame.style.visibility = 'hidden';
@@ -31,9 +46,10 @@ window.gitwidget = (function () {
                     document.getElementById(this.id).getElementsByClassName("createdby")[0].href = github_url + parent.username;
                 updateField(this.id, "createdby", "Created by " + result[reponum].owner.login);
                 updateField(this.id, "description", result[reponum].description);
-            }
-        }
-    }
+        	}
+                
+        setTimeout(function(){ srepo(i+1, result.length, parent, elem, result); }, 5);
+	}
 
     function request(parent, url, callback) {
 
@@ -75,6 +91,7 @@ window.gitwidget = (function () {
         var doc = document.getElementById(selector);
         var type = doc.getAttribute("git-type") || "owner";
         var sort = doc.getAttribute("git-sort") || "pushed";
+        doc.style.visibility = 'hidden';
         this.theme = doc.getAttribute("git-theme") || "theme.html";
         this.selector = selector;
         this.username = doc.getAttribute("git-username");
