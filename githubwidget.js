@@ -1,107 +1,135 @@
 "use strict";
 window.gitwidget = (function () {
 
-    var api_url = "https://api.github.com/";
-    var github_url = "https://github.com/";
+  var api_url = "https://api.github.com/";
+  var github_url = "https://github.com/";
 
-	function fins(elem){
-		elem.style.visibility = 'visible';
-	}
+  function fins(elem, doc){
+    elem.innerHTML = doc.innerHTML;
+    elem.style.visibility = 'visible';
+  }
 
-    function renderWidget(parent, result) {
-        var elem = document.getElementById(parent.selector);
+  function renderWidget(parent, result) {
+    var elem = document.getElementById(parent.selector);
+    var doc = document.createElement("div");
+    template(parent.theme, function(templ){
         setTimeout(function(){
-        	srepo(0, result.length, parent, elem, result);
+          srepo(0, result.length, parent, elem, templ, doc, result);
         }, 50);
+      });
+  }
+
+  function srepo(i, length, parent, elem, templ, doc, result){
+
+    if(i >= length) {
+      fins(elem, doc);
+      return;
     }
 
-	function srepo(i, length, parent, elem, result){
+      var repo = document.createElement("div");
+      repo.innerHTML = templ;
+      repo.getElementsByClassName("gitrepo")[0].id = i;
 
-		if(i >= length) {
-			fins(elem);
-			return;
-		}
+      var repolink = repo.getElementsByClassName("repolink");
+      if (repolink.length > 0){
+        repolink[0].href = result[i].html_url;
+        repolink[0].innerHTML = result[i].name;
+      }
 
-		var frame = document.createElement("iframe");
-            frame.src = parent.theme;
-            frame.id = "iframe-" + i;
-            frame.style.visibility = 'hidden';
-            elem.appendChild(frame);
+      var stargazerscount = repo.getElementsByClassName("stargazerscount");
+      if (stargazerscount.length > 0){
+        stargazerscount[0].innerHTML = result[i].stargazers_count;
+      }
 
-            frame.onload = function () {
+      var forkscount = repo.getElementsByClassName("forkscount");
+      if (forkscount.length > 0){
+        forkscount[0].innerHTML = result[i].forks_count;
+      }
 
-                var repotemplate = this.contentWindow.document.body;
-                repotemplate.getElementsByClassName("gitrepo")[0].id = this.id;
-                elem.replaceChild(repotemplate.getElementsByClassName("gitrepo")[0], this);
+      var createdby = repo.getElementsByClassName("createdby");
+      if (createdby.length > 0){
+        createdby[0].href =  github_url + parent.username;
+        createdby[0].innerHTML =  result[i].owner.login;
+      }
 
-                var reponum = this.id.split("-")[1];
-                if (document.getElementById(this.id).getElementsByClassName("repolink").length > 0)
-                    document.getElementById(this.id).getElementsByClassName("repolink")[0].href = result[reponum].html_url;
+      var description = repo.getElementsByClassName("description");
+      if (description.length > 0){
+        description[0].innerHTML = result[i].description;
+      }
+      doc.appendChild(repo);
 
-                updateField(this.id, "repolink", result[reponum].name);
-                updateField(this.id, "stargazerscount", result[reponum].stargazers_count);
-                updateField(this.id, "forkscount", result[reponum].forks_count);
+    setTimeout(function(){ srepo(i+1, result.length, parent, elem, templ, doc, result); }, 50);
+  }
 
-                if (document.getElementById(this.id).getElementsByClassName("createdby").length > 0)
-                    document.getElementById(this.id).getElementsByClassName("createdby")[0].href = github_url + parent.username;
-                updateField(this.id, "createdby", "Created by " + result[reponum].owner.login);
-                updateField(this.id, "description", result[reponum].description);
-        	}
+  function template(url, callback) {
 
-        setTimeout(function(){ srepo(i+1, result.length, parent, elem, result); }, 50);
-	}
-
-    function request(parent, url, callback) {
-
-        var r = null;
-        if (window.XMLHttpRequest) {
-            r = new XMLHttpRequest();
-            if (typeof r.overrideMimeType != "undefined") {
-                r.overrideMimeType("text/xml");
-            }
-        } else if (window.ActiveXObject) {
-            r = new ActiveXObject("Microsoft.XMLHTTP");
-        } else {
-            return r;
-        }
-
-        r.onreadystatechange = function () {
-            if (r.readyState != 4) return;
-            if (r.status != 200) return;
-            callback(parent, JSON.parse(r.responseText));
-        };
-
-        r.open("GET", url, true);
-        r.send();
+    var r = null;
+    if (window.XMLHttpRequest) {
+      r = new XMLHttpRequest();
+      if (typeof r.overrideMimeType != "undefined") {
+        r.overrideMimeType("text/xml");
+      }
+    } else if (window.ActiveXObject) {
+      r = new ActiveXObject("Microsoft.XMLHTTP");
+    } else {
+      return r;
     }
 
-    function updateField(id, field, value) {
-        var fiel = document.getElementById(id).getElementsByClassName(field);
-        if (fiel.length > 0)
-            fiel[0].innerHTML = value;
-    }
-
-    var gitwidget = {
-        selector: "",
-        username: "",
-        theme: ""
+    r.onreadystatechange = function () {
+      if (r.readyState != 4) return;
+      if (r.status != 200) return;
+      callback(r.responseText);
     };
 
-    gitwidget.display = function (selector) {
-        var doc = document.getElementById(selector);
-        var type = doc.getAttribute("git-type") || "owner";
-        var sort = doc.getAttribute("git-sort") || "pushed";
-        doc.style.visibility = 'hidden';
-        this.theme = doc.getAttribute("git-theme") || "theme.html";
-        this.selector = selector;
-        this.username = doc.getAttribute("git-username");
-        request(this, api_url + "users/" + this.username + "/repos?type=" + type + "&sort=" + sort, renderWidget);
-    };
+    r.open("GET", url, true);
+    r.send();
+  }
 
-    var widget = document.getElementById("gitwidget");
-    if (widget) {
-        gitwidget.display("gitwidget");
+  function request(parent, url, callback) {
+
+    var r = null;
+    if (window.XMLHttpRequest) {
+      r = new XMLHttpRequest();
+      if (typeof r.overrideMimeType != "undefined") {
+        r.overrideMimeType("text/xml");
+      }
+    } else if (window.ActiveXObject) {
+      r = new ActiveXObject("Microsoft.XMLHTTP");
+    } else {
+      return r;
     }
 
-    return gitwidget;
+    r.onreadystatechange = function () {
+      if (r.readyState != 4) return;
+      if (r.status != 200) return;
+      callback(parent, JSON.parse(r.responseText));
+    };
+
+    r.open("GET", url, true);
+    r.send();
+  }
+
+  var gitwidget = {
+    selector: "",
+    username: "",
+    theme: ""
+  };
+
+  gitwidget.display = function (selector) {
+    var doc = document.getElementById(selector);
+    var type = doc.getAttribute("git-type") || "owner";
+    var sort = doc.getAttribute("git-sort") || "pushed";
+    doc.style.visibility = 'hidden';
+    this.theme = doc.getAttribute("git-theme") || "theme.html";
+    this.selector = selector;
+    this.username = doc.getAttribute("git-username");
+    request(this, api_url + "users/" + this.username + "/repos?type=" + type + "&sort=" + sort, renderWidget);
+  };
+
+  var widget = document.getElementById("gitwidget");
+  if (widget) {
+    gitwidget.display("gitwidget");
+  }
+
+  return gitwidget;
 })();
