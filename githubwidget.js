@@ -3,25 +3,25 @@ window.gitwidget = (function () {
 
     var api_url = "https://api.github.com/";
     var github_url = "https://github.com/";
-		
+
 	function fins(elem){
 		elem.style.visibility = 'visible';
 	}
-		
-    function renderWidget(parent, result) {    
+
+    function renderWidget(parent, result) {
         var elem = document.getElementById(parent.selector);
-        setTimeout(function(){ 
-        	srepo(0, result.length, parent, elem, result); 
+        setTimeout(function(){
+        	srepo(0, result.length, parent, elem, result);
         }, 50);
     }
 
 	function srepo(i, length, parent, elem, result){
-		
+
 		if(i >= length) {
 			fins(elem);
 			return;
 		}
-		
+
 		var frame = document.createElement("iframe");
             frame.src = parent.theme;
             frame.id = "iframe-" + i;
@@ -47,8 +47,8 @@ window.gitwidget = (function () {
                 updateField(this.id, "createdby", "Created by " + result[reponum].owner.login);
                 updateField(this.id, "description", result[reponum].description);
         	}
-                
-        setTimeout(function(){ srepo(i+1, result.length, parent, elem, result); }, 5);
+
+        setTimeout(function(){ srepo(i+1, result.length, parent, elem, result); }, 50);
 	}
 
     function request(parent, url, callback) {
